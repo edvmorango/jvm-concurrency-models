@@ -12,7 +12,7 @@ object ThreadCreation extends App {
   class MyCustomThread(id: Int) extends Thread {
 
     override def run(): Unit = {
-      (0 until 1000).filter(_ % 200 == 0).foreach { _ =>
+      (0 until 10000).filter(_ % 5000 == 0).foreach { _ =>
         println(s"MyCustomThread instance is running, his name is: $getName, his identifier is:  $id")
       }
     }
@@ -26,5 +26,31 @@ object ThreadCreation extends App {
   someThread.start()
   anotherThread.start()
   oneMoreThread.start()
+
+}
+
+object ThreadJoin extends App {
+
+  class MyCustomThread(name: String = "MyCustomThread") extends Thread {
+
+    override def run(): Unit = {
+      (0 until 100).foreach { _ =>
+        println(s"Executing $name")
+      }
+    }
+
+  }
+
+  val someThread = new MyCustomThread
+  val anotherThread = new MyCustomThread("AnotherCustomThread")
+
+  someThread.start()
+  anotherThread.start()
+
+  someThread.join()
+  println("someThread Joined")
+
+  anotherThread.join()
+  println("anotherThread Joined")
 
 }
