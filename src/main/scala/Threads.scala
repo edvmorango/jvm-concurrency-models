@@ -55,3 +55,56 @@ object ThreadJoin extends App {
   println("Finishing MainThread")
 
 }
+
+object ThreadProducer{
+
+  def thread(body: => Unit): Thread ={
+    val thread = new Thread{
+      override def run = body
+    }
+    thread.start()
+    thread
+  }
+
+}
+
+object ThreadUnsynchronized extends App {
+
+  var seq = 0L;
+
+  def nextFromSequence(): Long = {
+    val nextElem = seq + 1;
+    seq = nextElem
+    seq
+  }
+
+  def parallelInsert(elements: Int) = {
+
+    val ids = (0 until elements).map(_ => nextFromSequence)
+    println(Thread.currentThread.getName, ids)
+  }
+
+  ThreadProducer.thread(parallelInsert(10))
+  ThreadProducer.thread(parallelInsert(10))
+}
+
+object ThreadSynchronized extends App {
+
+  var seq = 0L;
+
+  def nextFromSequence(): Long = {
+    val nextElem = seq + 1;
+    seq = nextElem
+    seq
+  }
+
+  def parallelInsert(elements: Int) = this.synchronized{
+    val ids = (0 until elements).map(_ => nextFromSequence)
+    println(Thread.currentThread.getName, ids)
+    Thread.sleep(250)
+  }
+
+  ThreadProducer.thread(parallelInsert(10))
+  ThreadProducer.thread(parallelInsert(10))
+  (0 until 20).foreach{ _ => Thread.sleep(25); println("MainThread executing...") }
+}
