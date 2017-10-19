@@ -31,10 +31,11 @@ object ThreadCreation extends App {
 
 object ThreadJoin extends App {
 
-  class MyCustomThread(name: String = "MyCustomThread") extends Thread {
+  class MyCustomThread(name: String = "MyCustomThread", times: Int = 10) extends Thread {
 
     override def run(): Unit = {
-      (0 until 100).foreach { _ =>
+      (0 until times).foreach { _ =>
+        Thread.sleep(1000)
         println(s"Executing $name")
       }
     }
@@ -42,15 +43,15 @@ object ThreadJoin extends App {
   }
 
   val someThread = new MyCustomThread
-  val anotherThread = new MyCustomThread("AnotherCustomThread")
+  val anotherThread = new MyCustomThread("AnotherCustomThread", 20)
 
   someThread.start()
   anotherThread.start()
 
+  println(s"\nMyCustomThread will join")
   someThread.join()
-  println("someThread Joined")
+  println("\nMyCustomThread joined\n")
 
-  anotherThread.join()
-  println("anotherThread Joined")
+  println("Finishing MainThread")
 
 }
