@@ -108,3 +108,4 @@ object ThreadSynchronized extends App {
   ThreadProducer.thread(parallelInsert(10))
   (0 until 20).foreach{ _ => Thread.sleep(25); println("MainThread executing...") }
 }
+
