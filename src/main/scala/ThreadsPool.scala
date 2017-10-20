@@ -1,3 +1,4 @@
+import scala.annotation.tailrec
 import scala.collection._
 
 object ThreadPoolExpensive extends App {
@@ -16,6 +17,9 @@ object ThreadPoolExpensive extends App {
     }
 
     override def run() = while (true) { pool().map(_()) }
+
+
+
   }
 
   Worker.start()
@@ -61,18 +65,18 @@ object ThreadPool extends App {
 
     setDaemon(true)
 
-    def pool() = tasks.synchronized {
+    def pool(): () => Unit = tasks.synchronized {
       while (tasks.isEmpty)
         tasks.wait()
       tasks.dequeue()
     }
 
-    override def run() = {
-      while (true) {
-        val task = pool()
-        task()
-      }
+  @tailrec override def run() = {
+    val task = pool()
+    task()
+    run()
     }
+
   }
 
   Worker.start()
@@ -82,15 +86,66 @@ object ThreadPool extends App {
     tasks.notify()
   }
 
-  asynchronous{ println("1") }
+  asynchronous{ println("Asynchronous call") }
   Thread.sleep(1000)
   println(Worker.getState)
 
-  asynchronous{ println("2") }
+  asynchronous{ println(s"Asynchronous sum of 1+2 = ${1+2}") }
   Thread.sleep(1000)
   println(Worker.getState)
 
-  asynchronous{ println("3") }
+  asynchronous{ println("Another call") }
+  Thread.sleep(1000)
+  println(Worker.getState)
+
+  Thread.sleep(1000)
+  println(Worker.getState)
+
+}
+
+object ThreadPoolShutdown extends App {
+
+  var alive = true
+  val tasks = mutable.Queue[() => Unit]()
+
+  object Worker extends Thread {
+
+    def pool(): Option[() => Unit] = tasks.synchronized {
+      while (tasks.isEmpty && alive)
+        tasks.wait()
+      if(alive)
+        Some(tasks.dequeue())
+      else
+        None
+    }
+
+    @tailrec override def run() = pool() match {
+      case Some(task) =>
+        task()
+        run()
+      case None => println("Shutting down worker")
+    }
+
+    def shutdown() = tasks.synchronized {
+      alive = false
+      tasks.notify()
+    }
+  }
+
+  Worker.start()
+
+  def asynchronous(body: => Unit) = tasks.synchronized {
+    tasks.enqueue( () => body )
+    tasks.notify()
+  }
+
+  asynchronous{ println("Asynchronous call") }
+  Thread.sleep(1000)
+  println(Worker.getState)
+
+  Worker.shutdown()
+
+  asynchronous{ println("Another call") }
   Thread.sleep(1000)
   println(Worker.getState)
 
