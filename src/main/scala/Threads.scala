@@ -98,7 +98,7 @@ object ThreadSynchronized extends App {
     seq
   }
 
-  def parallelInsert(elements: Int) = this.synchronized{
+  def parallelInsert(elements: Int) = this.synchronized {
     val ids = (0 until elements).map(_ => nextFromSequence)
     println(Thread.currentThread.getName, ids)
     Thread.sleep(250)
@@ -107,5 +107,61 @@ object ThreadSynchronized extends App {
   ThreadProducer.thread(parallelInsert(10))
   ThreadProducer.thread(parallelInsert(10))
   (0 until 20).foreach{ _ => Thread.sleep(25); println("MainThread executing...") }
+}
+
+object ThreadDeadlock extends App {
+  case class Account(var name: String,var money: Int)
+
+  def send(sender: Account, receiver: Account, value: Int): Unit = sender.synchronized {
+    receiver.synchronized {
+      sender.money -= value
+      receiver.money += value
+    }
+  }
+
+  val myAccount =  Account("myAccount", 5000)
+  val otherAccount =  Account("otherAccount", 3000)
+
+  val tA = ThreadProducer.thread{ (0 until 1000).foreach(_ => send(myAccount, otherAccount, 2)  )}
+  val tB = ThreadProducer.thread{ (0 until 1000).foreach(_ => send(otherAccount, myAccount, 1)  )}
+
+  tA.join()
+  tB.join()
+
+  println(s"MyAccount -> ${myAccount.money} --- otherAccount -> ${otherAccount.money}")
+
+}
+
+object ThreadWithoutDeadlock extends App {
+  case class Account(var name: String,var money: Int) {
+    val id = ThreadSynchronized.nextFromSequence()
+  }
+
+  def send(sender: Account, receiver: Account, value: Int): Unit = sender.synchronized {
+    receiver.synchronized {
+      def transfer() = {
+        sender.money -= value
+        receiver.money += value
+      }
+
+      if(sender.id > receiver.id)
+        receiver.synchronized{ sender.synchronized{ transfer() } }
+      else
+        sender.synchronized{ receiver.synchronized{ transfer() } }
+
+    }
+  }
+
+  val myAccount =  Account("myAccount", 5000)
+  val otherAccount =  Account("otherAccount", 3000)
+
+  val tA = ThreadProducer.thread { (0 until 2000).foreach(_ => send(myAccount, otherAccount, 2)  )}
+  val tB = ThreadProducer.thread{ (0 until 2000).foreach(_ => send(otherAccount, myAccount, 1)  )}
+
+  tA.join()
+  tB.join()
+
+  println(s"MyAccount -> ${myAccount.money} --- otherAccount -> ${otherAccount.money}")
+
 }
 
