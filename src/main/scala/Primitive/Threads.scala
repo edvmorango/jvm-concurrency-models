@@ -1,3 +1,5 @@
+package Primitive
+
 object ThreadName extends App {
 
   val current: Thread = Thread.currentThread

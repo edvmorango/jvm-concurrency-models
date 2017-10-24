@@ -1,3 +1,5 @@
+package Primitive
+
 import java.time.LocalDateTime
 
 object VolatileVar extends App{

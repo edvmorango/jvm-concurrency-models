@@ -1,3 +1,5 @@
+package Primitive
+
 import scala.annotation.tailrec
 import scala.collection._
 
