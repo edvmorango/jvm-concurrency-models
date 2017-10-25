@@ -8,3 +8,4 @@ http://rerun.me/2016/06/05/scala-notes-futures-2-promises/
 
 https://stackoverflow.com/questions/18960339/clarification-needed-about-futures-and-promises-in-scala
 
+http://robotlolita.me/2015/11/15/how-do-promises-work.html#21-what-are-promises
