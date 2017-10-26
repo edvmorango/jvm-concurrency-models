@@ -2,6 +2,8 @@ package FuturesAndPromises
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Try
+import scala.util.control.NonFatal
 
 object FuturesExecution extends App {
 
@@ -43,5 +45,27 @@ object FuturesCallback extends App {
   }
 
   Thread.sleep(10000)
+}
+
+object FuturesFailure extends App {
+
+  val f: Future[Double] = Future { 10/0 }
+
+  f.foreach{v => println(s"Result: $v")}
+
+  f.failed.foreach{e => println(s"Exception: $e")}
+
+  Thread.sleep(10000)
+}
+
+object FuturesFailuresTry extends App {
+
+  val f = Future { throw new InterruptedException }
+
+  f.failed.foreach{
+    case NonFatal(e) => println(s"Exception: $e")
+  }
+
+  Thread.sleep(2000)
 
 }
