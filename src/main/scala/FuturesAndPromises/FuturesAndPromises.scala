@@ -1,6 +1,7 @@
 package FuturesAndPromises
 
 import java.time.LocalDateTime
+import java.util.concurrent.TimeoutException
 
 import FuturesAndPromises.FuturesNesting.Token
 
@@ -139,7 +140,7 @@ object FuturesComposed extends App {
     Token("token", LocalDateTime.MAX)
   }
 
-  for {
+  (for {
     token <- f
     info <- getInfo(token)
     moreInfo <- getMoreInfo(token, info)
@@ -147,6 +148,9 @@ object FuturesComposed extends App {
     println(s"Token -> $token")
     println(s"Info -> $info")
     println(s"MoreInfo -> $moreInfo")
+  }).recover {
+    case e: TimeoutException => ???
+    case _ => ???
   }
 
   println(s"Main thread: ${Thread.currentThread().getName}")
@@ -197,7 +201,7 @@ object FuturesBlocking extends App {
   Thread.sleep(10000)
 }
 
-object FuturesDesugared extends App{
+object FuturesDesugared extends App {
 
   def getToken(): Future[String] = Future { "token" }
 
@@ -236,7 +240,45 @@ object FuturesDesugared extends App{
   }
 
   Thread.sleep(10000)
-
-
-
 }
+
+object FuturesApplicative extends App {
+
+  def getToken(): Future[String] = Future { "token" }
+
+  def getRestrictInfo(token: String): Future[String] = Future {
+    println("Restrict started")
+    Thread.sleep(3000)
+    println("Restrict finished")
+    "Restrict"
+  }
+
+  def getRestrictInfo2(token: String): Future[String] = Future {
+    println("Restrict2 started")
+    Thread.sleep(3000)
+    println("Restrict2 finished")
+    "Restrict 2"
+  }
+
+  def getPublicInfo(): Future[String] = Future {
+    println("Public started")
+    Thread.sleep(3000)
+    println("Public finished")
+    "Public"
+  }
+
+  def matchInfo(public: String, restrict: String) = public == restrict
+
+  for {
+    token <- getToken()
+    restrict <- getRestrictInfo(token) zip getRestrictInfo2(token)
+    public <- getPublicInfo()
+  } yield {
+    println(s"Token $token")
+    println(s"Restrict $restrict")
+    println(s"Public $public")
+  }
+
+  Thread.sleep(10000)
+}
+
