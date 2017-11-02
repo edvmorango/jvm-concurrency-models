@@ -2,10 +2,11 @@ package FuturesAndPromises
 
 import java.time.LocalDateTime
 
+import FuturesAndPromises.FuturesNesting.Token
+
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
-import scala.util.control.NonFatal
+import scala.util.{Failure, Success}
 
 object FuturesExecution extends App {
 
@@ -117,3 +118,39 @@ object FuturesNesting extends App {
 
   Thread.sleep(2000)
 }
+
+object FuturesComposed extends App {
+
+  def getInfo(token: Token): Future[List[String]] = Future {
+    println(s"getInfo: ${Thread.currentThread().getName}")
+    if(token.isValid)
+      List("info1", "info2", "info3")
+    else
+      Nil
+  }
+
+  def getMoreInfo(token: Token, list: List[String]): Future[String] = Future {
+    println(s"getMoreInfo: ${Thread.currentThread().getName}")
+    "More info"
+  }
+
+  def f: Future[Token] = Future {
+    println(s"f Future: ${Thread.currentThread().getName}")
+    Token("token", LocalDateTime.MAX)
+  }
+
+  for {
+    token <- f
+    info <- getInfo(token)
+    moreInfo <- getMoreInfo(token, info)
+  } yield {
+    println(s"Token -> $token")
+    println(s"Info -> $info")
+    println(s"MoreInfo -> $moreInfo")
+  }
+
+  println(s"Main thread: ${Thread.currentThread().getName}")
+  Thread.sleep(2000)
+
+}
+
