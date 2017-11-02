@@ -154,3 +154,40 @@ object FuturesComposed extends App {
 
 }
 
+object FuturesBlocking extends App {
+
+  def getToken(): Future[String] = Future { "token" }
+  def getPublicInfo(): Future[String] = Future {
+    println("Public started")
+    Thread.sleep(3000)
+    println("Public finished")
+    "Info"
+  }
+  def getRestrictInfo(token: String): Future[String] = Future {
+    println("Restrict started")
+    Thread.sleep(3000)
+    println("Restrict finished")
+    "Info"
+  }
+
+  def getRestrictInfo2(token: String): Future[String] = Future {
+    println("Restrict2 started")
+    Thread.sleep(3000)
+    println("Restrict2 finished")
+    "Info"
+  }
+
+  def matchInfo(public: String, restrict: String) = public == restrict
+
+  for {
+    token <- getToken()
+    restrict <- getRestrictInfo(token)
+    restrict2 <- getRestrictInfo2(token)
+    public <- getPublicInfo()
+  } yield {
+    println(s"Restrict $restrict")
+    println(s"Public $public")
+  }
+
+  Thread.sleep(10000)
+}
