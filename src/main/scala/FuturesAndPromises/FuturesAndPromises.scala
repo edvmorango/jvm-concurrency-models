@@ -157,25 +157,28 @@ object FuturesComposed extends App {
 object FuturesBlocking extends App {
 
   def getToken(): Future[String] = Future { "token" }
-  def getPublicInfo(): Future[String] = Future {
-    println("Public started")
-    Thread.sleep(3000)
-    println("Public finished")
-    "Info"
-  }
+
   def getRestrictInfo(token: String): Future[String] = Future {
     println("Restrict started")
     Thread.sleep(3000)
     println("Restrict finished")
-    "Info"
+    "Restrict"
   }
 
   def getRestrictInfo2(token: String): Future[String] = Future {
     println("Restrict2 started")
     Thread.sleep(3000)
     println("Restrict2 finished")
-    "Info"
+    "Restrict 2"
   }
+
+  def getPublicInfo(): Future[String] = Future {
+    println("Public started")
+    Thread.sleep(3000)
+    println("Public finished")
+    "Public"
+  }
+
 
   def matchInfo(public: String, restrict: String) = public == restrict
 
@@ -185,9 +188,55 @@ object FuturesBlocking extends App {
     restrict2 <- getRestrictInfo2(token)
     public <- getPublicInfo()
   } yield {
+    println(s"Token $token")
     println(s"Restrict $restrict")
+    println(s"Restrict 2 $restrict")
     println(s"Public $public")
   }
 
   Thread.sleep(10000)
+}
+
+object FuturesDesugared extends App{
+
+  def getToken(): Future[String] = Future { "token" }
+
+  def getRestrictInfo(token: String): Future[String] = Future {
+    println("Restrict started")
+    Thread.sleep(3000)
+    println("Restrict finished")
+    "Restrict"
+  }
+
+  def getRestrictInfo2(token: String): Future[String] = Future {
+    println("Restrict2 started")
+    Thread.sleep(3000)
+    println("Restrict2 finished")
+    "Restrict 2"
+  }
+
+  def getPublicInfo(): Future[String] = Future {
+    println("Public started")
+    Thread.sleep(3000)
+    println("Public finished")
+    "Public"
+  }
+
+  getToken().flatMap { token =>
+    getRestrictInfo(token).flatMap { restrict =>
+      getRestrictInfo2(token).flatMap { restrict2 =>
+        getPublicInfo().map { public =>
+          println(s"Token $token")
+          println(s"Restrict $restrict")
+          println(s"Restrict 2 $restrict")
+          println(s"Public $public")
+        }
+      }
+    }
+  }
+
+  Thread.sleep(10000)
+
+
+
 }
