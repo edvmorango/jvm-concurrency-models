@@ -11,4 +11,5 @@ https://stackoverflow.com/questions/18960339/clarification-needed-about-futures-
 http://robotlolita.me/2015/11/15/how-do-promises-work.html#21-what-are-promises
 
 http://pchiusano.blogspot.com.br/2010/01/actors-are-not-good-concurrency-model.html
+
 https://www.chrisstucchio.com/blog/2013/actors_vs_futures.html
