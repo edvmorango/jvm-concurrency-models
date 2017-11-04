@@ -1,3 +1,4 @@
+import akka.actor.Actor.Receive
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 
 class SomeActor(password: String) extends Actor {
@@ -48,5 +49,49 @@ object SomeActorApp extends App {
   Thread.sleep(1000)
 
   someActor ! "bye"
+}
+
+class DoorActor() extends Actor {
+
+  def closed: Actor.Receive = {
+    case "open" =>
+      println("Opening the door")
+      context.become(opened)
+    case "enter" =>
+      println("You must open the door first!")
+  }
+
+  def opened: Receive = {
+    case "enter" =>
+      println("You are entering")
+    case "close" =>
+      println("Closing the door")
+      context.become(closed)
+  }
+
+  override def receive: Receive = closed
+
+}
+
+object DoorActor {
+
+  def props =  Props(classOf[DoorActor])
+
+}
+
+object DoorActorApp extends App {
+
+  val actorSystem = ActorSystem("ActorSystem-02")
+  val doorActor: ActorRef = actorSystem.actorOf(DoorActor.props)
+
+  doorActor ! "enter"
+  doorActor ! "open"
+  doorActor ! "enter"
+  doorActor ! "close"
+
+  Thread.sleep(1000)
+
+  actorSystem.terminate()
+
 }
 
