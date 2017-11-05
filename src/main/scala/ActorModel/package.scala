@@ -1,8 +1,16 @@
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+import akka.util.Timeout
+import akka.pattern.ask
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationLong
+
+
 
 class SomeActor(password: String) extends Actor {
 
   def receive = {
+    case num: Int =>
+      sender ! s"Result is ${num*2}"
     case "hello" =>
       println("hello -> Hi, how are you?")
     case "password" =>
@@ -20,6 +28,8 @@ object SomeActor {
 }
 
 object SomeActorApp extends App {
+
+  implicit val timeout = Timeout(5000 millis)
 
   val actorSystem = ActorSystem("ActorSystem-01")
 
@@ -40,6 +50,14 @@ object SomeActorApp extends App {
   Thread.sleep(1000)
 
   someActor ! "bye"
+
+  Thread.sleep(1000)
+
+  val future = someActor ? 5
+
+  val result = Await.result(future, timeout.duration).asInstanceOf[String]
+
+  println(result)
 
   actorSystem.terminate()
 
