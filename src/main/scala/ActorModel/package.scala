@@ -95,3 +95,75 @@ object DoorActorApp extends App {
 
 }
 
+class EmployerActor extends Actor {
+
+  def receive = {
+
+    case "boss" =>
+      val parent = context.parent
+      println(s"I am ${context.self}, my boss is $parent")
+
+  }
+
+  override def postStop() = {
+    println(s"I ${context.self} was fired")
+  }
+
+}
+
+class BossActor extends Actor {
+
+  def receive = {
+    case "hire" =>
+      println("Hiring a new employer...")
+      context.actorOf(Props[EmployerActor])
+    case "askwhoistheboss" =>
+      println("Asking who is the boss")
+      context.children.foreach(_ ! "boss")
+    case "fire" =>
+      context.stop(context.children.head)
+    case "fireAll" =>
+      println("Good bye everyone")
+      context.stop(self)
+  }
+
+}
+
+object BossActorApp extends App {
+
+  val actorSystem = ActorSystem("ActorSystem-03")
+  val bossActor: ActorRef = actorSystem.actorOf(Props[BossActor])
+
+  bossActor ! "hire"
+
+  Thread.sleep(1000)
+
+  bossActor ! "hire"
+
+  Thread.sleep(1000)
+
+  bossActor ! "hire"
+
+  Thread.sleep(1000)
+
+  bossActor ! "askwhoistheboss"
+
+  Thread.sleep(1000)
+
+  bossActor ! "fire"
+
+  Thread.sleep(1000)
+
+  bossActor ! "askwhoistheboss"
+
+  Thread.sleep(1000)
+
+  bossActor ! "fireAll"
+
+  Thread.sleep(1000)
+
+  actorSystem.terminate()
+
+}
+
+
