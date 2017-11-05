@@ -1,19 +1,16 @@
-import akka.actor.Actor.Receive
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 
 class SomeActor(password: String) extends Actor {
 
-  val info = context.system
-
   def receive = {
     case "hello" =>
-      println("Hi, how are you?")
+      println("hello -> Hi, how are you?")
     case "password" =>
-      println(s"The password is: $password")
+      println(s"password -> The password is: $password")
     case "bye" =>
-      println("Bye, see you later.")
+      println("bye -> Bye, see you later.")
     case _ =>
-      println("Wut?")
+      println("_ -> Wut?")
   }
 }
 
@@ -55,17 +52,17 @@ class DoorActor() extends Actor {
 
   def closed: Actor.Receive = {
     case "open" =>
-      println("Opening the door")
-      context.become(opened)
+      println("open -> Opening the door")
+        context.become(opened)
     case "enter" =>
-      println("You must open the door first!")
+      println("enter -> You must open the door first!")
   }
 
   def opened: Receive = {
     case "enter" =>
-      println("You are entering")
+      println("enter -> You are entering")
     case "close" =>
-      println("Closing the door")
+      println("close -> Closing the door")
       context.become(closed)
   }
 
@@ -101,7 +98,7 @@ class EmployerActor extends Actor {
 
     case "boss" =>
       val parent = context.parent
-      println(s"I am ${context.self}, my boss is $parent")
+      println(s"boss -> I am ${context.self}, my boss is $parent")
 
   }
 
@@ -115,15 +112,15 @@ class BossActor extends Actor {
 
   def receive = {
     case "hire" =>
-      println("Hiring a new employer...")
+      println("Hire -> Hiring a new employer...")
       context.actorOf(Props[EmployerActor])
     case "askwhoistheboss" =>
-      println("Asking who is the boss")
+      println("askwhoistheboss -> Asking who is the boss")
       context.children.foreach(_ ! "boss")
     case "fire" =>
       context.stop(context.children.head)
     case "fireAll" =>
-      println("Good bye everyone")
+      println("fireAll -> Good bye everyone")
       context.stop(self)
   }
 

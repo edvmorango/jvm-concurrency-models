@@ -198,6 +198,8 @@ object FuturesBlocking extends App {
     println(s"Public $public")
   }
 
+
+
   Thread.sleep(10000)
 }
 
@@ -226,8 +228,10 @@ object FuturesDesugared extends App {
     "Public"
   }
 
-  getToken().flatMap { token =>
+val fd =  getToken().flatMap { token =>
+
     getRestrictInfo(token).flatMap { restrict =>
+
       getRestrictInfo2(token).flatMap { restrict2 =>
         getPublicInfo().map { public =>
           println(s"Token $token")
