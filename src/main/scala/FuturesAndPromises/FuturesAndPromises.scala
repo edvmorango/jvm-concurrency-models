@@ -186,7 +186,7 @@ object FuturesBlocking extends App {
 
   def matchInfo(public: String, restrict: String) = public == restrict
 
-  for {
+  val newFuture = for {
     token <- getToken()
     restrict <- getRestrictInfo(token)
     restrict2 <- getRestrictInfo2(token)
@@ -196,8 +196,8 @@ object FuturesBlocking extends App {
     println(s"Restrict $restrict")
     println(s"Restrict 2 $restrict")
     println(s"Public $public")
+    (token, restrict, restrict2, public)
   }
-
 
 
   Thread.sleep(10000)
@@ -228,10 +228,8 @@ object FuturesDesugared extends App {
     "Public"
   }
 
-val fd =  getToken().flatMap { token =>
-
+  getToken().flatMap { token =>
     getRestrictInfo(token).flatMap { restrict =>
-
       getRestrictInfo2(token).flatMap { restrict2 =>
         getPublicInfo().map { public =>
           println(s"Token $token")
@@ -278,9 +276,9 @@ object FuturesApplicative extends App {
     restrict <- getRestrictInfo(token) zip getRestrictInfo2(token)
     public <- getPublicInfo()
   } yield {
-    println(s"Token $token")
-    println(s"Restrict $restrict")
-    println(s"Public $public")
+    println(s"Token -> $token")
+    println(s"Restrict ->  $restrict")
+    println(s"Public  -> $public")
   }
 
   Thread.sleep(10000)
