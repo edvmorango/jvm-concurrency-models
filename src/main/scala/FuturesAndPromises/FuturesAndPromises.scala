@@ -140,7 +140,7 @@ object FuturesComposed extends App {
     Token("token", LocalDateTime.MAX)
   }
 
-  (for {
+  val newFuture = (for {
     token <- f
     info <- getInfo(token)
     moreInfo <- getMoreInfo(token, info)
@@ -148,7 +148,9 @@ object FuturesComposed extends App {
     println(s"Token -> $token")
     println(s"Info -> $info")
     println(s"MoreInfo -> $moreInfo")
-  }).recover {
+  })
+
+  newFuture.recover {
     case e: TimeoutException => ???
     case _ => ???
   }
@@ -186,7 +188,7 @@ object FuturesBlocking extends App {
 
   def matchInfo(public: String, restrict: String) = public == restrict
 
-  val newFuture = for {
+  for {
     token <- getToken()
     restrict <- getRestrictInfo(token)
     restrict2 <- getRestrictInfo2(token)
