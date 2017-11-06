@@ -1,9 +1,10 @@
+package ActorModel
+
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.util.Timeout
 import akka.pattern.ask
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationLong
-
 
 
 class SomeActor(password: String) extends Actor {

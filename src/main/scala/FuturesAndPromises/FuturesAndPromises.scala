@@ -140,7 +140,8 @@ object FuturesComposed extends App {
     Token("token", LocalDateTime.MAX)
   }
 
-  val newFuture = (for {
+  val newFuture = (
+  for {
     token <- f
     info <- getInfo(token)
     moreInfo <- getMoreInfo(token, info)
