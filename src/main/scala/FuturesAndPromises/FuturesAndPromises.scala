@@ -247,6 +247,57 @@ object FuturesDesugared extends App {
   Thread.sleep(10000)
 }
 
+object FutureDoubtful extends App {
+
+  def getToken(): Future[String] = Future {
+    println("Token Started")
+    Thread.sleep(1000)
+    println("Token Finished")
+    "token" }
+
+  def getRestrictInfo(token: String): Future[String] = Future {
+    println("Restrict started")
+    Thread.sleep(3000)
+    println("Restrict finished")
+    "Restrict"
+  }
+
+  def getRestrictInfo2(token: String): Future[String] = Future {
+    println("Restrict2 started")
+    Thread.sleep(3000)
+    println("Restrict2 finished")
+    "Restrict 2"
+  }
+
+  def getPublicInfo(): Future[String] = Future {
+    println("Public started")
+    Thread.sleep(3000)
+    println("Public finished")
+    "Public"
+  }
+
+  val tokenFut = getToken()
+  val publicFut = getPublicInfo()
+
+
+  for {
+    public <- publicFut
+    token <- tokenFut
+    restrict <- getRestrictInfo(token)
+    restrict2 <- getRestrictInfo2(token)
+  } yield {
+    println(s"Token $token")
+    println(s"Restrict $restrict")
+    println(s"Restrict 2 $restrict")
+    println(s"Public $public")
+    (token, restrict, restrict2, public)
+  }
+
+  Thread.sleep(10000)
+
+
+}
+
 object FuturesApplicative extends App {
 
   def getToken(): Future[String] = Future { "token" }
