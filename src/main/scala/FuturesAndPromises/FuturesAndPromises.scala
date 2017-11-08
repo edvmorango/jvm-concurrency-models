@@ -140,8 +140,7 @@ object FuturesComposed extends App {
     Token("token", LocalDateTime.MAX)
   }
 
-  val newFuture = (
-  for {
+  val newFuture = for {
     token <- f
     info <- getInfo(token)
     moreInfo <- getMoreInfo(token, info)
@@ -149,7 +148,7 @@ object FuturesComposed extends App {
     println(s"Token -> $token")
     println(s"Info -> $info")
     println(s"MoreInfo -> $moreInfo")
-  })
+  }
 
   newFuture.recover {
     case e: TimeoutException => ???

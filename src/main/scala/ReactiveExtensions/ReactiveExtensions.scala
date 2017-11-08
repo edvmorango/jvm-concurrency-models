@@ -70,6 +70,7 @@ object SubjectExample extends App {
   sb.subscribe(n => println(s"Observing: $n"))
 
   sb.onNext(11)
+
   sb.onNext(12)
 
 }
